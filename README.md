@@ -1,142 +1,102 @@
 # 🔬 PubMed Search Engine
 
-A beginner-friendly Gradio application that searches PubMed and filters results to show only articles from high-impact journals based on Journal Impact Factor data. Perfect for students and researchers who want to focus on the most credible research.
-
-## 🎯 Problem Solved
-
-While mentoring students in Research Methodology Course, I noticed they struggled with finding high-quality articles on PubMed. Students were overwhelmed by thousands of search results and couldn't easily identify which journals were most credible and impactful for their research.
+A Next.js web application that searches PubMed and filters results to show only articles from high-impact journals — across **all research disciplines**. Deployed on Vercel.
 
 ## ✨ Features
 
-- **🔍 Intelligent PubMed Search**: Search with advanced filters
-- **📊 Journal Impact Factor Filtering**: Show only articles from high-impact journals
-- **🏆 Quartile Rankings**: Q1, Q2, Q3, Q4 journal categorization
-- **📈 Smart Sorting**: Sort by JIF, quartile, or relevance
-- **🎯 Research Filters**: Article type, human studies, open access
-- **📱 Mobile Friendly**: Works great on all devices
-- **⚡ Fast & Reliable**: Optimized API calls with error handling
+- **Cross-discipline search** — medicine, biology, engineering, social sciences, physics, and more
+- **Journal Impact Factor filtering** — show only Q1/Q2/Q3/Q4 journals or all journals
+- **12 article types** — RCT, Meta-Analysis, Systematic Review, Cohort Study, Case Report, etc.
+- **Smart sorting** — by JIF, quartile, or PubMed relevance
+- **Abstract preview** — expandable inline abstracts
+- **Open Access filter** — show only freely accessible articles
+- **Mobile responsive** — works on all devices
 
-## 🚀 Live Demo
+## 🛠️ Tech Stack
 
-**Try it now:** [https://huggingface.co/spaces/Babajaan/Pubmed_Search_Engine](https://huggingface.co/spaces/Babajaan/Pubmed_Search_Engine)
+| Layer | Technology |
+|---|---|
+| Frontend | Next.js 14 (App Router) + React 18 |
+| Styling | Tailwind CSS |
+| Backend | Next.js API Routes (serverless) |
+| Data source | PubMed / NCBI E-utilities API |
+| Journal data | JIF 2024 (~7 000+ journals) |
+| Deployment | Vercel |
 
-## 🛠️ Technology Stack
+## 🚀 Getting Started
 
-- **Frontend**: Gradio
-- **Backend**: Python
-- **Data Source**: PubMed (NCBI) API
-- **Journal Data**: Journal Impact Factors 2024
-- **Deployment**: Hugging Face Spaces
+### Prerequisites
 
-## 📋 Prerequisites
+- Node.js 18+
+- npm / pnpm / yarn
 
-- Python 3.8+
-- pip package manager
+### Local development
 
-## 🚀 Installation
+```bash
+git clone https://github.com/jaannawaz/pubmed-search-engine.git
+cd pubmed-search-engine
 
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/jaannawaz/pubmed-search-engine.git
-   cd pubmed-search-engine
-   ```
+npm install
 
-2. **Create a virtual environment:**
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
+# Optional: copy env file and add NCBI API key for higher rate limits
+cp .env.local.example .env.local
 
-3. **Install dependencies:**
-   ```bash
-   pip install -r requirements.txt
-   ```
+npm run dev
+```
 
-4. **Run the application:**
-   ```bash
-   python app.py
-   ```
+Open [http://localhost:3000](http://localhost:3000).
 
-5. **Open your browser:**
-   Navigate to `http://localhost:7860` (or the port shown in terminal)
+## 🌐 Deploying to Vercel
+
+```bash
+# Install Vercel CLI
+npm i -g vercel
+
+vercel
+```
+
+Or connect the GitHub repo to [vercel.com](https://vercel.com) for automatic deploys on push.
+
+### Environment Variables (optional)
+
+Set these in the Vercel dashboard or `.env.local`:
+
+```env
+NCBI_API_KEY=           # Optional — raises rate limit to 10 req/s
+NCBI_TOOL_NAME=pubmed-search-engine
+NCBI_CONTACT_EMAIL=your-email@example.com
+```
 
 ## 📁 Project Structure
 
 ```
 pubmed-search-engine/
-├── app.py                          # Main application file
-├── requirements.txt                 # Python dependencies
-├── README.md                       # Project documentation
-├── journal_impact_factors/         # Journal data directory
-│   └── top_journals.json          # Journal impact factor data
-└── .gitignore                     # Git ignore file
+├── app/
+│   ├── api/search/route.ts   # PubMed search API endpoint
+│   ├── layout.tsx
+│   ├── page.tsx              # Main search page
+│   └── globals.css
+├── components/
+│   ├── SearchForm.tsx        # Filter panel
+│   ├── ArticleCard.tsx       # Single result card
+│   └── ResultsPanel.tsx      # Results list + status
+├── lib/
+│   └── journalData.ts        # Journal lookup (JIF + quartile)
+├── data/
+│   └── top_journals.json     # ~7 000 journals with JIF + quartile
+├── vercel.json               # 30s serverless timeout
+└── .env.local.example
 ```
-
-## 🔧 Configuration
-
-### Environment Variables (Optional)
-
-Create a `.env` file for API configuration:
-
-```env
-NCBI_TOOL_NAME=your-tool-name
-NCBI_CONTACT_EMAIL=your-email@example.com
-NCBI_API_KEY=your-api-key  # Optional, for higher rate limits
-```
-
-### Journal Data
-
-The app uses journal impact factor data from `journal_impact_factors/top_journals.json`. This file contains:
-- Journal names and aliases
-- Impact factors
-- Quartile rankings
-- Categories
-
-## 📖 Usage
-
-1. **Enter your search query** (e.g., "diabetes prevention")
-2. **Select filters:**
-   - Article type (RCT, Meta-Analysis, etc.)
-   - Humans only
-   - Open access
-   - Years back
-   - Max results
-3. **Choose journal filtering:**
-   - Show only top journals (recommended)
-   - Show all journals
-4. **Select sorting option:**
-   - Default (relevance)
-   - JIF (High to Low)
-   - Quartile (Q1 to Q4)
-5. **Click "Search PubMed"**
-
-## 🎓 Educational Value
-
-This tool helps students and researchers:
-- **Focus on credible sources** by filtering high-impact journals
-- **Save time** by avoiding manual journal quality checks
-- **Learn research methodology** through practical application
-- **Understand journal rankings** and their significance
-
-## 🤝 Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request. For major changes, please open an issue first to discuss what you would like to change.
 
 ## 📝 License
 
-This project is open source and available under the [MIT License](LICENSE).
+MIT — see [LICENSE](LICENSE).
 
 ## 🙏 Acknowledgments
 
-- **100x Engineer Course** for teaching Gradio app development
-- **Siddhant Goswami** for the excellent Gradio session
-- **PubMed/NCBI** for providing the research database
-- **Journal Impact Factor data** from 2024 rankings
-
-## 📞 Contact
-
-If you have any questions or suggestions, please feel free to reach out!
+- **PubMed / NCBI** for the free research API
+- **Journal Impact Factor** data 2024
 
 ---
 
-**Built with ❤️ for the research community**
+**Built for researchers across every discipline**

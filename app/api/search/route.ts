@@ -23,7 +23,7 @@ function buildSearchTerm(
   query: string,
   articleType: string,
   humansOnly: boolean,
-  openAccess: boolean,
+  accessFilter: 'all' | 'open' | 'closed',
 ): string {
   const typeMapping: Record<string, string> = {
     'Randomized Controlled Trial': 'Randomized Controlled Trial[Publication Type]',
@@ -46,8 +46,10 @@ function buildSearchTerm(
   if (humansOnly) {
     term += ' AND humans[MeSH Terms]';
   }
-  if (openAccess) {
+  if (accessFilter === 'open') {
     term += ' AND free full text[sb]';
+  } else if (accessFilter === 'closed') {
+    term += ' NOT free full text[sb]';
   }
   return term;
 }
@@ -117,7 +119,10 @@ export async function GET(request: NextRequest) {
   const query = searchParams.get('query')?.trim() ?? '';
   const articleType = searchParams.get('articleType') ?? '';
   const humansOnly = searchParams.get('humansOnly') === 'true';
-  const openAccess = searchParams.get('openAccess') === 'true';
+  const accessFilterRaw = searchParams.get('accessFilter') ?? 'all';
+  const accessFilter = (['all', 'open', 'closed'].includes(accessFilterRaw)
+    ? accessFilterRaw
+    : 'all') as 'all' | 'open' | 'closed';
   const yearsBack = Math.min(parseInt(searchParams.get('yearsBack') ?? '5', 10), 20);
   const maxResults = Math.min(parseInt(searchParams.get('maxResults') ?? '20', 10), 50);
   const showAllJournals = searchParams.get('showAllJournals') === 'true';
@@ -139,7 +144,7 @@ export async function GET(request: NextRequest) {
   const startDate = new Date();
   startDate.setFullYear(startDate.getFullYear() - yearsBack);
 
-  const searchTerm = buildSearchTerm(query, articleType, humansOnly, openAccess);
+  const searchTerm = buildSearchTerm(query, articleType, humansOnly, accessFilter);
 
   // ── Step 1: eSearch ────────────────────────────────────────────────────
   const searchUrl =

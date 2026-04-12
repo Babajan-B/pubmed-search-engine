@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import SearchForm, { type SearchParams } from '@/components/SearchForm';
-import ResultsPanel from '@/components/ResultsPanel';
+import JournalResultsPanel from '@/components/JournalResultsPanel';
 import type { Article } from '@/app/api/search/route';
 
 interface SearchResult {
@@ -12,17 +12,19 @@ interface SearchResult {
   filtered: number;
 }
 
-export default function Home() {
+export default function JournalsPage() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<SearchResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [hasSearched, setHasSearched] = useState(false);
+  const [lastQuery, setLastQuery] = useState('');
 
   const handleSearch = useCallback(async (params: SearchParams) => {
     setLoading(true);
     setError(null);
     setResult(null);
     setHasSearched(true);
+    setLastQuery(params.query);
 
     const qs = new URLSearchParams({
       query: params.query,
@@ -30,7 +32,8 @@ export default function Home() {
       humansOnly: String(params.humansOnly),
       accessFilter: params.accessFilter,
       yearsBack: String(params.yearsBack),
-      maxResults: String(params.maxResults),
+      // Always fetch max results for better journal coverage
+      maxResults: '50',
       showAllJournals: String(params.showAllJournals),
       sortBy: params.sortBy,
     });
@@ -58,13 +61,13 @@ export default function Home() {
           <nav className="flex items-center gap-1 ml-4">
             <a
               href="/"
-              className="text-xs px-3 py-1.5 rounded-lg font-medium text-foreground bg-white/10 border border-white/15 transition"
+              className="text-xs px-3 py-1.5 rounded-lg font-medium text-muted-foreground hover:text-foreground hover:bg-white/5 transition"
             >
               Articles
             </a>
             <a
               href="/journals"
-              className="text-xs px-3 py-1.5 rounded-lg font-medium text-muted-foreground hover:text-foreground hover:bg-white/5 transition"
+              className="text-xs px-3 py-1.5 rounded-lg font-medium text-foreground bg-white/10 border border-white/15 transition"
             >
               Journal View
             </a>
@@ -79,26 +82,25 @@ export default function Home() {
       <section className="relative pt-16 pb-10 px-4 overflow-hidden">
         {/* background glow */}
         <div className="pointer-events-none absolute inset-0 flex items-start justify-center">
-          <div className="mt-8 h-[400px] w-[800px] rounded-full bg-indigo-600/10 blur-[110px]" />
+          <div className="mt-8 h-[400px] w-[800px] rounded-full bg-violet-600/10 blur-[110px]" />
         </div>
 
         <div className="relative z-10 max-w-2xl mx-auto space-y-6 text-center">
           {/* badge */}
           <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-muted-foreground">
-            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-            Powered by PubMed · NCBI E-utilities
+            <span className="h-1.5 w-1.5 rounded-full bg-violet-400 animate-pulse" />
+            Journal Impact · Quartile Rankings · Topic Groups
           </div>
 
           {/* headline */}
           <div className="space-y-2">
             <h1 className="text-4xl sm:text-5xl font-bold tracking-tight leading-tight">
-              <span className="bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
-                ScholaraBB
+              <span className="bg-gradient-to-r from-violet-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+                Journal View
               </span>
             </h1>
             <p className="text-muted-foreground text-base max-w-lg mx-auto">
-              Search PubMed and filter by Journal Impact Factor, quartile rankings,
-              and more — across every discipline.
+              Search PubMed and see results ranked by journal — with JIF, quartile, and keyword topic groups.
             </p>
           </div>
 
@@ -111,10 +113,10 @@ export default function Home() {
           {!hasSearched && (
             <div className="flex flex-wrap justify-center gap-3 pt-2">
               {[
-                { label: '7 000+', sub: 'indexed journals' },
-                { label: 'Q1 – Q4', sub: 'quartile rankings' },
-                { label: 'JIF 2024', sub: 'impact factors' },
-                { label: 'All fields', sub: 'cross-discipline' },
+                { label: 'Journal Name', sub: 'full title' },
+                { label: 'Q1 – Q4', sub: 'quartile rank' },
+                { label: 'JIF 2024', sub: 'impact factor' },
+                { label: 'By Topic', sub: 'keyword groups' },
               ].map((s) => (
                 <div key={s.label} className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-center">
                   <div className="text-sm font-semibold">{s.label}</div>
@@ -129,13 +131,14 @@ export default function Home() {
       {/* Results */}
       {hasSearched && (
         <main className="flex-1 max-w-5xl mx-auto w-full px-4 sm:px-6 pb-16">
-          <ResultsPanel
+          <JournalResultsPanel
             articles={result?.articles ?? null}
             loading={loading}
             totalFound={result?.totalFound ?? 0}
             fetched={result?.fetched ?? 0}
             filtered={result?.filtered ?? 0}
             error={error}
+            searchQuery={lastQuery}
           />
         </main>
       )}

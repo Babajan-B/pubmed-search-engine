@@ -14,7 +14,7 @@ export type SearchParams = {
   query: string;
   articleType: string;
   humansOnly: boolean;
-  openAccess: boolean;
+  accessFilter: 'all' | 'open' | 'closed';
   yearsBack: number;
   maxResults: number;
   showAllJournals: boolean;
@@ -62,7 +62,7 @@ export default function SearchForm({ onSearch, loading }: Props) {
     query: '',
     articleType: '',
     humansOnly: false,
-    openAccess: false,
+    accessFilter: 'all',
     yearsBack: 5,
     maxResults: 20,
     showAllJournals: false,
@@ -98,7 +98,7 @@ export default function SearchForm({ onSearch, loading }: Props) {
   const activeFilterCount = [
     params.articleType !== '',
     params.humansOnly,
-    params.openAccess,
+    params.accessFilter !== 'all',
     params.showAllJournals,
     params.yearsBack !== 5,
     params.maxResults !== 20,
@@ -247,10 +247,9 @@ export default function SearchForm({ onSearch, loading }: Props) {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             {([
               { key: 'humansOnly', label: 'Humans only', icon: '👤' },
-              { key: 'openAccess', label: 'Open access', icon: '🔓' },
               { key: 'showAllJournals', label: 'All journals', icon: '📄' },
             ] as { key: keyof SearchParams; label: string; icon: string }[]).map(({ key, label, icon }) => (
               <button key={key} type="button"
@@ -266,6 +265,33 @@ export default function SearchForm({ onSearch, loading }: Props) {
                 {params[key] && <span className="ml-auto h-2 w-2 rounded-full bg-indigo-400 shrink-0" />}
               </button>
             ))}
+          </div>
+
+          {/* Access filter 3-way */}
+          <div className="space-y-2">
+            <Label className="text-[11px] font-medium text-muted-foreground uppercase tracking-widest">Access</Label>
+            <div className="flex gap-2">
+              {([
+                { value: 'all',    label: 'All',               icon: '📋' },
+                { value: 'open',   label: 'Open Access',        icon: '🔓' },
+                { value: 'closed', label: 'Subscription only',  icon: '🔒' },
+              ] as { value: 'all' | 'open' | 'closed'; label: string; icon: string }[]).map((opt) => (
+                <button
+                  key={opt.value}
+                  type="button"
+                  onClick={() => set('accessFilter', opt.value)}
+                  className={`flex-1 flex items-center justify-center gap-1.5 rounded-xl border py-2 text-xs font-semibold transition-all ${
+                    params.accessFilter === opt.value
+                      ? 'border-indigo-500 bg-indigo-500/20 text-indigo-300 shadow-sm shadow-indigo-500/20'
+                      : 'border-white/10 bg-white/5 text-muted-foreground hover:bg-white/10 hover:text-foreground'
+                  }`}
+                >
+                  <span>{opt.icon}</span>
+                  <span className="hidden sm:inline">{opt.label}</span>
+                  <span className="sm:hidden">{opt.value === 'all' ? 'All' : opt.value === 'open' ? 'Open' : 'Sub'}</span>
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       )}

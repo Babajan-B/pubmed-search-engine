@@ -31,6 +31,7 @@ export default function JournalsPage() {
       articleType: params.articleType,
       humansOnly: String(params.humansOnly),
       accessFilter: params.accessFilter,
+      authorCountry: params.authorCountry,
       yearsBack: String(params.yearsBack),
       maxResults: String(params.maxResults),
       showAllJournals: String(params.showAllJournals),

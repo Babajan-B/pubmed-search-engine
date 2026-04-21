@@ -65,6 +65,20 @@ export default function ArticleCard({ article }: { article: Article }) {
             {article.category && (
               <Badge variant="outline" className="text-[11px] py-0">{article.category}</Badge>
             )}
+            {article.authorCountries.slice(0, 2).map((country) => (
+              <Badge
+                key={country}
+                variant="outline"
+                className="text-[11px] py-0 bg-sky-500/15 text-sky-300 border-sky-500/30"
+              >
+                {country}
+              </Badge>
+            ))}
+            {article.authorCountries.length > 2 && (
+              <Badge variant="outline" className="text-[11px] py-0">
+                +{article.authorCountries.length - 2} countries
+              </Badge>
+            )}
           </div>
 
           {/* Abstract toggle */}

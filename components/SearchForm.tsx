@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
 import {
   Select,
   SelectContent,
@@ -9,12 +10,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { COUNTRY_OPTIONS } from '@/lib/countryData';
 
 export type SearchParams = {
   query: string;
   articleType: string;
   humansOnly: boolean;
   accessFilter: 'all' | 'open' | 'closed';
+  authorCountry: string;
   yearsBack: number;
   maxResults: number;
   showAllJournals: boolean;
@@ -63,6 +66,7 @@ const BASE_DEFAULT_PARAMS: SearchParams = {
   articleType: '',
   humansOnly: false,
   accessFilter: 'all',
+  authorCountry: '',
   yearsBack: 5,
   maxResults: 20,
   showAllJournals: false,
@@ -80,6 +84,7 @@ export default function SearchForm({ onSearch, loading, defaultParams }: Props) 
     articleType: '',
     humansOnly: false,
     accessFilter: 'all',
+    authorCountry: '',
     yearsBack: 5,
     maxResults: 20,
     showAllJournals: false,
@@ -117,6 +122,7 @@ export default function SearchForm({ onSearch, loading, defaultParams }: Props) 
     params.articleType !== initialParams.articleType,
     params.humansOnly,
     params.accessFilter !== initialParams.accessFilter,
+    params.authorCountry !== initialParams.authorCountry,
     params.showAllJournals,
     params.yearsBack !== initialParams.yearsBack,
     params.maxResults !== initialParams.maxResults,
@@ -233,6 +239,25 @@ export default function SearchForm({ onSearch, loading, defaultParams }: Props) 
                 </SelectContent>
               </Select>
             </div>
+          </div>
+
+          <div className="space-y-1.5">
+            <Label className="text-[11px] font-medium text-muted-foreground uppercase tracking-widest">Author Country</Label>
+            <Input
+              list="author-country-options"
+              value={params.authorCountry}
+              onChange={(e) => set('authorCountry', e.target.value)}
+              placeholder="Any country, e.g. United States, Saudi Arabia, India"
+              className="bg-white/5 border-white/10 hover:border-white/20 text-sm"
+            />
+            <datalist id="author-country-options">
+              {COUNTRY_OPTIONS.map((country) => (
+                <option key={country} value={country} />
+              ))}
+            </datalist>
+            <p className="text-[11px] text-muted-foreground/60">
+              Matches articles where at least one author affiliation includes this country.
+            </p>
           </div>
 
           <div className="space-y-2">

@@ -1,5 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getJournalMetadata, isTopJournal } from '@/lib/journalData';
+import {
+  extractCountriesFromAffiliations,
+  normalizeCountryInput,
+} from '@/lib/countryData';
 
 const PUBMED_BASE = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/';
 
@@ -15,6 +19,7 @@ export interface Article {
   jif: number | null;
   quartile: string | null;
   category: string | null;
+  authorCountries: string[];
 }
 
 // ─── Helpers ───────────────────────────────────────────────────────────────
@@ -54,8 +59,8 @@ function buildSearchTerm(
   return term;
 }
 
-function parseAbstracts(xmlContent: string): Record<string, string> {
-  const abstracts: Record<string, string> = {};
+function parsePubmedDetails(xmlContent: string): Record<string, { abstract: string; authorCountries: string[] }> {
+  const details: Record<string, { abstract: string; authorCountries: string[] }> = {};
   const articlePattern = /<PubmedArticle>[\s\S]*?<\/PubmedArticle>/g;
   let articleMatch: RegExpExecArray | null;
 
@@ -74,9 +79,17 @@ function parseAbstracts(xmlContent: string): Record<string, string> {
       const text = aMatch[2].replace(/<[^>]+>/g, '').trim();
       if (text) texts.push(label ? `${label}: ${text}` : text);
     }
-    if (texts.length > 0) abstracts[pmid] = texts.join('\n\n');
+    const affiliations = Array.from(
+      articleXml.matchAll(/<Affiliation[^>]*>([\s\S]*?)<\/Affiliation>/g),
+      (match) => match[1].replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim(),
+    ).filter(Boolean);
+
+    details[pmid] = {
+      abstract: texts.length > 0 ? texts.join('\n\n') : 'No abstract available',
+      authorCountries: extractCountriesFromAffiliations(affiliations),
+    };
   }
-  return abstracts;
+  return details;
 }
 
 function extractYear(pubdate: string): string {
@@ -127,6 +140,7 @@ export async function GET(request: NextRequest) {
   const maxResults = Math.min(parseInt(searchParams.get('maxResults') ?? '20', 10), 150);
   const showAllJournals = searchParams.get('showAllJournals') === 'true';
   const sortBy = searchParams.get('sortBy') ?? 'relevance';
+  const authorCountry = normalizeCountryInput(searchParams.get('authorCountry') ?? '');
 
   if (!query) {
     return NextResponse.json({ error: 'Query is required' }, { status: 400 });
@@ -228,6 +242,7 @@ export async function GET(request: NextRequest) {
         jif: meta.jif,
         quartile: meta.quartile,
         category: meta.category,
+        authorCountries: [] as string[],
       } satisfies Article;
     })
     .filter((a): a is Article => a !== null);
@@ -244,15 +259,18 @@ export async function GET(request: NextRequest) {
     const res = await fetch(fetchUrl, { signal: AbortSignal.timeout(20_000) });
     if (res.ok) {
       const xml = await res.text();
-      const abstracts = parseAbstracts(xml);
+      const details = parsePubmedDetails(xml);
       for (const article of articles) {
-        article.abstract = abstracts[article.pmid] ?? 'No abstract available';
+        const detail = details[article.pmid];
+        article.abstract = detail?.abstract ?? 'No abstract available';
+        article.authorCountries = detail?.authorCountries ?? [];
       }
     }
   } catch (err) {
     console.error('eFetch error:', err);
     for (const article of articles) {
       article.abstract = 'Abstract temporarily unavailable';
+      article.authorCountries = [];
     }
   }
 
@@ -265,11 +283,15 @@ export async function GET(request: NextRequest) {
     console.log('[search] journal match sample:', JSON.stringify(sample));
   }
 
-  const filtered = showAllJournals
+  const journalFiltered = showAllJournals
     ? articles
     : articles.filter((a) => isTopJournal(a.journal));
 
-  const sorted = sortArticles(filtered, sortBy);
+  const countryFiltered = authorCountry
+    ? journalFiltered.filter((article) => article.authorCountries.includes(authorCountry))
+    : journalFiltered;
+
+  const sorted = sortArticles(countryFiltered, sortBy);
 
   return NextResponse.json({
     articles: sorted,

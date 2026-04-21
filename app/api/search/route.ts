@@ -124,7 +124,7 @@ export async function GET(request: NextRequest) {
     ? accessFilterRaw
     : 'all') as 'all' | 'open' | 'closed';
   const yearsBack = Math.min(parseInt(searchParams.get('yearsBack') ?? '5', 10), 20);
-  const maxResults = Math.min(parseInt(searchParams.get('maxResults') ?? '20', 10), 50);
+  const maxResults = Math.min(parseInt(searchParams.get('maxResults') ?? '20', 10), 150);
   const showAllJournals = searchParams.get('showAllJournals') === 'true';
   const sortBy = searchParams.get('sortBy') ?? 'relevance';
 

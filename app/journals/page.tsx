@@ -32,8 +32,7 @@ export default function JournalsPage() {
       humansOnly: String(params.humansOnly),
       accessFilter: params.accessFilter,
       yearsBack: String(params.yearsBack),
-      // Always fetch max results for better journal coverage
-      maxResults: '50',
+      maxResults: String(params.maxResults),
       showAllJournals: String(params.showAllJournals),
       sortBy: params.sortBy,
     });
@@ -106,7 +105,11 @@ export default function JournalsPage() {
 
           {/* Search form */}
           <div className="text-left">
-            <SearchForm onSearch={handleSearch} loading={loading} />
+            <SearchForm
+              onSearch={handleSearch}
+              loading={loading}
+              defaultParams={{ maxResults: 100 }}
+            />
           </div>
 
           {/* Stats row — only when not yet searched */}

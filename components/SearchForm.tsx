@@ -55,9 +55,26 @@ const EXAMPLES = [
 interface Props {
   onSearch: (params: SearchParams) => void;
   loading: boolean;
+  defaultParams?: Partial<SearchParams>;
 }
 
-export default function SearchForm({ onSearch, loading }: Props) {
+const BASE_DEFAULT_PARAMS: SearchParams = {
+  query: '',
+  articleType: '',
+  humansOnly: false,
+  accessFilter: 'all',
+  yearsBack: 5,
+  maxResults: 20,
+  showAllJournals: false,
+  sortBy: 'relevance',
+};
+
+export default function SearchForm({ onSearch, loading, defaultParams }: Props) {
+  const initialParams: SearchParams = {
+    ...BASE_DEFAULT_PARAMS,
+    ...defaultParams,
+  };
+
   const [params, setParams] = useState<SearchParams>({
     query: '',
     articleType: '',
@@ -67,6 +84,7 @@ export default function SearchForm({ onSearch, loading }: Props) {
     maxResults: 20,
     showAllJournals: false,
     sortBy: 'relevance',
+    ...defaultParams,
   });
   const [showAdvanced, setShowAdvanced] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -96,13 +114,13 @@ export default function SearchForm({ onSearch, loading }: Props) {
   }
 
   const activeFilterCount = [
-    params.articleType !== '',
+    params.articleType !== initialParams.articleType,
     params.humansOnly,
-    params.accessFilter !== 'all',
+    params.accessFilter !== initialParams.accessFilter,
     params.showAllJournals,
-    params.yearsBack !== 5,
-    params.maxResults !== 20,
-    params.sortBy !== 'relevance',
+    params.yearsBack !== initialParams.yearsBack,
+    params.maxResults !== initialParams.maxResults,
+    params.sortBy !== initialParams.sortBy,
   ].filter(Boolean).length;
 
   return (
@@ -235,7 +253,7 @@ export default function SearchForm({ onSearch, loading }: Props) {
           <div className="space-y-2">
             <Label className="text-[11px] font-medium text-muted-foreground uppercase tracking-widest">Max Results</Label>
             <div className="flex gap-2">
-              {[5, 10, 20, 30, 50].map((n) => (
+              {[10, 20, 50, 100, 150].map((n) => (
                 <button key={n} type="button" onClick={() => set('maxResults', n)}
                   className={`flex-1 rounded-xl border py-2 text-xs font-semibold transition-all ${
                     params.maxResults === n

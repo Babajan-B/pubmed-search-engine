@@ -57,7 +57,7 @@ export default function JournalsPage() {
       <header className="sticky top-0 z-20 border-b border-white/5 bg-background/80 backdrop-blur-md">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 h-14 flex items-center gap-3">
           <span className="text-xl">🔬</span>
-          <span className="font-semibold tracking-tight text-sm">Q Finder</span>
+          <span className="font-semibold tracking-tight text-sm">ScholaraBB</span>
           <nav className="flex items-center gap-1 ml-4">
             <a
               href="/"
@@ -151,7 +151,7 @@ export default function JournalsPage() {
       <footer className="border-t border-white/5 py-5 text-center text-xs text-muted-foreground mt-auto">
         Data: PubMed / NCBI · Journal Impact Factors 2024 ·{' '}
         <a
-          href="https://github.com/jaannawaz/q-article-journal-finder"
+          href="https://github.com/jaannawaz/pubmed-search-engine"
           className="hover:text-foreground transition"
           target="_blank" rel="noopener noreferrer"
         >

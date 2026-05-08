@@ -1,12 +1,12 @@
-# CLAUDE.md — Q Article & Journal Finder
+# CLAUDE.md — PubMed Search Engine
 
 ## Project Overview
 
-**Q Article & Journal Finder** is a Next.js 14 web application that searches PubMed and filters results by journal impact factor (JIF) and quartile rankings. It supports cross-disciplinary research filtering with 7000+ journals and 12 article types.
+**ScholaraBB** (formerly "PubMed Search Engine") is a Next.js 14 web application that searches PubMed and filters results by journal impact factor (JIF) and quartile rankings. It supports cross-disciplinary research filtering with 7000+ journals and 12 article types.
 
 - **Live**: Deployed on Vercel
-- **Repository**: https://github.com/jaannawaz/q-article-journal-finder
-- **Latest commit**: Rebrand to Q Article & Journal Finder (commit TBD)
+- **Repository**: https://github.com/jaannawaz/pubmed-search-engine
+- **Latest commit**: Migrate to Next.js 14 — ScholaraBB rebranding (commit 94d8908)
 
 ## Tech Stack
 
@@ -114,7 +114,7 @@ Set in `.env.local` or Vercel dashboard:
 
 ```env
 NCBI_API_KEY=           # Raises rate limit to 10 req/s (vs 3 req/s)
-NCBI_TOOL_NAME=q-article-journal-finder
+NCBI_TOOL_NAME=pubmed-search-engine
 NCBI_CONTACT_EMAIL=your-email@example.com
 ```
 
@@ -166,7 +166,7 @@ NCBI_CONTACT_EMAIL=your-email@example.com
 ## File Structure
 
 ```
-q-article-journal-finder/
+pubmed-search-engine/
 ├── app/
 │   ├── api/
 │   │   └── search/route.ts          # Main PubMed search endpoint

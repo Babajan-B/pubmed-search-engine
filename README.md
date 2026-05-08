@@ -1,4 +1,4 @@
-# 🔬 Q Article & Journal Finder
+# 🔬 PubMed Search Engine
 
 A Next.js web application that searches PubMed and filters results to show only articles from high-impact journals — across **all research disciplines**. Deployed on Vercel.
 
@@ -33,8 +33,8 @@ A Next.js web application that searches PubMed and filters results to show only 
 ### Local development
 
 ```bash
-git clone https://github.com/jaannawaz/q-article-journal-finder.git
-cd q-article-journal-finder
+git clone https://github.com/jaannawaz/pubmed-search-engine.git
+cd pubmed-search-engine
 
 npm install
 
@@ -63,14 +63,14 @@ Set these in the Vercel dashboard or `.env.local`:
 
 ```env
 NCBI_API_KEY=           # Optional — raises rate limit to 10 req/s
-NCBI_TOOL_NAME=q-article-journal-finder
+NCBI_TOOL_NAME=pubmed-search-engine
 NCBI_CONTACT_EMAIL=your-email@example.com
 ```
 
 ## 📁 Project Structure
 
 ```
-q-article-journal-finder/
+pubmed-search-engine/
 ├── app/
 │   ├── api/search/route.ts   # PubMed search API endpoint
 │   ├── layout.tsx

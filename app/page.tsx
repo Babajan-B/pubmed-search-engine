@@ -55,7 +55,7 @@ export default function Home() {
       <header className="sticky top-0 z-20 border-b border-white/5 bg-background/80 backdrop-blur-md">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 h-14 flex items-center gap-3">
           <span className="text-xl">🔬</span>
-          <span className="font-semibold tracking-tight text-sm">ScholaraBB</span>
+          <span className="font-semibold tracking-tight text-sm">Q Finder</span>
           <nav className="flex items-center gap-1 ml-4">
             <a
               href="/"
@@ -94,7 +94,7 @@ export default function Home() {
           <div className="space-y-2">
             <h1 className="text-4xl sm:text-5xl font-bold tracking-tight leading-tight">
               <span className="bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
-                ScholaraBB
+                Q Article & Journal Finder
               </span>
             </h1>
             <p className="text-muted-foreground text-base max-w-lg mx-auto">
@@ -145,7 +145,7 @@ export default function Home() {
       <footer className="border-t border-white/5 py-5 text-center text-xs text-muted-foreground mt-auto">
         Data: PubMed / NCBI · Journal Impact Factors 2024 ·{' '}
         <a
-          href="https://github.com/jaannawaz/pubmed-search-engine"
+          href="https://github.com/jaannawaz/q-article-journal-finder"
           className="hover:text-foreground transition"
           target="_blank" rel="noopener noreferrer"
         >

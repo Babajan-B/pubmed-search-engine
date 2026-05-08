@@ -148,7 +148,7 @@ export async function GET(request: NextRequest) {
 
   // Build NCBI params
   const apiKey = process.env.NCBI_API_KEY ?? '';
-  const toolName = process.env.NCBI_TOOL_NAME ?? 'pubmed-search-engine';
+  const toolName = process.env.NCBI_TOOL_NAME ?? 'q-article-journal-finder';
   const email = process.env.NCBI_CONTACT_EMAIL ?? 'contact@example.com';
 
   const base = new URLSearchParams({ tool: toolName, email });

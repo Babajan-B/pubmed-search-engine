@@ -2,9 +2,9 @@ import type { Metadata } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'ScholaraBB',
+  title: 'Q Article & Journal Finder',
   description:
-    'ScholaraBB — search PubMed and filter results to high-impact journals by JIF and quartile rankings across all disciplines.',
+    'Search PubMed and filter results to high-impact journals by JIF and quartile rankings. Find quality articles across all research disciplines.',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

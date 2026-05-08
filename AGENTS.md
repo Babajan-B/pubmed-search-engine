@@ -1,4 +1,4 @@
-# CLAUDE.md — Q Article & Journal Finder
+# AGENTS.md — Q Article & Journal Finder
 
 ## Project Overview
 

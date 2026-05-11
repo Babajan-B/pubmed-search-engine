@@ -17,12 +17,14 @@ export default function Home() {
   const [result, setResult] = useState<SearchResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [hasSearched, setHasSearched] = useState(false);
+  const [query, setQuery] = useState<string>('');
 
   const handleSearch = useCallback(async (params: SearchParams) => {
     setLoading(true);
     setError(null);
     setResult(null);
     setHasSearched(true);
+    setQuery(params.query);
 
     const qs = new URLSearchParams({
       query: params.query,
@@ -68,6 +70,12 @@ export default function Home() {
               className="text-xs px-3 py-1.5 rounded-lg font-medium text-muted-foreground hover:text-foreground hover:bg-white/5 transition"
             >
               Journal View
+            </a>
+            <a
+              href="/ai-summary"
+              className="text-xs px-3 py-1.5 rounded-lg font-medium text-muted-foreground hover:text-foreground hover:bg-white/5 transition"
+            >
+              ✦ AI Summary
             </a>
           </nav>
           <span className="ml-auto text-xs text-muted-foreground hidden sm:block">
@@ -137,6 +145,7 @@ export default function Home() {
             fetched={result?.fetched ?? 0}
             filtered={result?.filtered ?? 0}
             error={error}
+            query={query}
           />
         </main>
       )}

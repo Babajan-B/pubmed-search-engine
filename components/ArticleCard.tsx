@@ -13,7 +13,13 @@ const QUARTILE_VARIANT: Record<string, string> = {
   Q4: 'bg-red-500/15 text-red-400 border-red-500/30',
 };
 
-export default function ArticleCard({ article }: { article: Article }) {
+interface Props {
+  article: Article;
+  selected?: boolean;
+  onToggle?: (pmid: string) => void;
+}
+
+export default function ArticleCard({ article, selected = false, onToggle }: Props) {
   const [expanded, setExpanded] = useState(false);
   const [hovered, setHovered] = useState(false);
 
@@ -28,79 +34,101 @@ export default function ArticleCard({ article }: { article: Article }) {
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
-      <Card className="overflow-hidden transition-shadow hover:shadow-lg hover:shadow-primary/5">
+      <Card className={`overflow-hidden transition-all hover:shadow-lg hover:shadow-primary/5 ${selected ? 'border-indigo-500/60 bg-indigo-500/5' : ''}`}>
         <CardContent className="p-5">
-          {/* Title */}
-          <a
-            href={article.pubmedUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-sm font-semibold text-primary hover:underline underline-offset-2 leading-snug block mb-2"
-          >
-            {article.title}
-          </a>
-
-          {/* Journal + year + authors */}
-          <p className="text-xs text-muted-foreground mb-3">
-            <span className="font-medium text-foreground/80">{article.journal}</span>
-            {' · '}{article.year}
-            {article.authors && (
-              <span className="text-muted-foreground/70">{' · '}{article.authors}</span>
-            )}
-          </p>
-
-          {/* Badges */}
-          <div className="flex flex-wrap gap-1.5 mb-3">
-            <Badge variant="outline" className="text-[11px] py-0">{article.type}</Badge>
-            {article.quartile && (
-              <Badge variant="outline" className={`text-[11px] py-0 ${QUARTILE_VARIANT[article.quartile] ?? ''}`}>
-                {article.quartile}
-              </Badge>
-            )}
-            {article.jif !== null && article.jif !== undefined && (
-              <Badge variant="outline" className="text-[11px] py-0 bg-violet-500/15 text-violet-400 border-violet-500/30">
-                JIF&nbsp;{article.jif}
-              </Badge>
-            )}
-            {article.category && (
-              <Badge variant="outline" className="text-[11px] py-0">{article.category}</Badge>
-            )}
-            {article.authorCountries.slice(0, 2).map((country) => (
-              <Badge
-                key={country}
-                variant="outline"
-                className="text-[11px] py-0 bg-sky-500/15 text-sky-300 border-sky-500/30"
-              >
-                {country}
-              </Badge>
-            ))}
-            {article.authorCountries.length > 2 && (
-              <Badge variant="outline" className="text-[11px] py-0">
-                +{article.authorCountries.length - 2} countries
-              </Badge>
-            )}
-          </div>
-
-          {/* Abstract toggle */}
-          {hasAbstract && (
-            <div>
+          <div className="flex items-start gap-3">
+            {/* Checkbox */}
+            {onToggle && (
               <button
-                onClick={() => setExpanded((v) => !v)}
-                className="text-[11px] text-primary/70 hover:text-primary transition"
+                onClick={() => onToggle(article.pmid)}
+                className={`mt-0.5 flex-shrink-0 h-4 w-4 rounded border-2 flex items-center justify-center transition-colors ${
+                  selected
+                    ? 'bg-indigo-500 border-indigo-500'
+                    : 'border-white/30 hover:border-indigo-400'
+                }`}
+                aria-label={selected ? 'Deselect article' : 'Select article'}
               >
-                {expanded ? '▲ Hide abstract' : '▼ Show abstract'}
+                {selected && (
+                  <svg className="h-2.5 w-2.5 text-white" fill="none" viewBox="0 0 10 8" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M1 4l3 3 5-5" />
+                  </svg>
+                )}
               </button>
-              {expanded && (
-                <p className="mt-2 text-xs text-muted-foreground leading-relaxed whitespace-pre-line border-t border-border pt-2">
-                  {article.abstract}
-                </p>
+            )}
+
+            <div className="flex-1 min-w-0">
+              {/* Title */}
+              <a
+                href={article.pubmedUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm font-semibold text-primary hover:underline underline-offset-2 leading-snug block mb-2"
+              >
+                {article.title}
+              </a>
+
+              {/* Journal + year + authors */}
+              <p className="text-xs text-muted-foreground mb-3">
+                <span className="font-medium text-foreground/80">{article.journal}</span>
+                {' · '}{article.year}
+                {article.authors && (
+                  <span className="text-muted-foreground/70">{' · '}{article.authors}</span>
+                )}
+              </p>
+
+              {/* Badges */}
+              <div className="flex flex-wrap gap-1.5 mb-3">
+                <Badge variant="outline" className="text-[11px] py-0">{article.type}</Badge>
+                {article.quartile && (
+                  <Badge variant="outline" className={`text-[11px] py-0 ${QUARTILE_VARIANT[article.quartile] ?? ''}`}>
+                    {article.quartile}
+                  </Badge>
+                )}
+                {article.jif !== null && article.jif !== undefined && (
+                  <Badge variant="outline" className="text-[11px] py-0 bg-violet-500/15 text-violet-400 border-violet-500/30">
+                    JIF&nbsp;{article.jif}
+                  </Badge>
+                )}
+                {article.category && (
+                  <Badge variant="outline" className="text-[11px] py-0">{article.category}</Badge>
+                )}
+                {article.authorCountries.slice(0, 2).map((country) => (
+                  <Badge
+                    key={country}
+                    variant="outline"
+                    className="text-[11px] py-0 bg-sky-500/15 text-sky-300 border-sky-500/30"
+                  >
+                    {country}
+                  </Badge>
+                ))}
+                {article.authorCountries.length > 2 && (
+                  <Badge variant="outline" className="text-[11px] py-0">
+                    +{article.authorCountries.length - 2} countries
+                  </Badge>
+                )}
+              </div>
+
+              {/* Abstract toggle */}
+              {hasAbstract && (
+                <div>
+                  <button
+                    onClick={() => setExpanded((v) => !v)}
+                    className="text-[11px] text-primary/70 hover:text-primary transition"
+                  >
+                    {expanded ? '▲ Hide abstract' : '▼ Show abstract'}
+                  </button>
+                  {expanded && (
+                    <p className="mt-2 text-xs text-muted-foreground leading-relaxed whitespace-pre-line border-t border-border pt-2">
+                      {article.abstract}
+                    </p>
+                  )}
+                </div>
               )}
             </div>
-          )}
+          </div>
         </CardContent>
       </Card>
 
-      {/* BorderBeam animates on hover */}
       {hovered && (
         <BorderBeam size={200} duration={8} colorFrom="#6366f1" colorTo="#a855f7" borderWidth={1} />
       )}

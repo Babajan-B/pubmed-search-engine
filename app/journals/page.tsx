@@ -12,9 +12,18 @@ interface SearchResult {
   filtered: number;
 }
 
+interface JournalMatch {
+  name: string;
+  jif: number | null;
+  quartile: string | null;
+  category: string | null;
+  articleCount: number;
+}
+
 export default function JournalsPage() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<SearchResult | null>(null);
+  const [journalMatches, setJournalMatches] = useState<JournalMatch[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [hasSearched, setHasSearched] = useState(false);
   const [lastQuery, setLastQuery] = useState('');
@@ -23,6 +32,7 @@ export default function JournalsPage() {
     setLoading(true);
     setError(null);
     setResult(null);
+    setJournalMatches([]);
     setHasSearched(true);
     setLastQuery(params.query);
 
@@ -39,10 +49,27 @@ export default function JournalsPage() {
     });
 
     try {
-      const res = await fetch(`/api/search?${qs}`);
-      const data = await res.json();
-      if (!res.ok) { setError(data.error ?? 'An unexpected error occurred.'); return; }
-      setResult(data as SearchResult);
+      const [articleRes, journalRes] = await Promise.all([
+        fetch(`/api/search?${qs}`),
+        fetch(`/api/journals?${new URLSearchParams({ query: params.query, limit: '100' })}`),
+      ]);
+
+      const articleData = await articleRes.json();
+      if (!articleRes.ok) {
+        setError(articleData.error ?? 'An unexpected error occurred.');
+        return;
+      }
+      setResult(articleData as SearchResult);
+
+      if (journalRes.ok) {
+        const journalData = await journalRes.json();
+        setJournalMatches(
+          (journalData.journals ?? []).map((journal: Omit<JournalMatch, 'articleCount'>) => ({
+            ...journal,
+            articleCount: 0,
+          })),
+        );
+      }
     } catch {
       setError('Network error — please check your connection and try again.');
     } finally {
@@ -137,6 +164,7 @@ export default function JournalsPage() {
         <main className="flex-1 max-w-5xl mx-auto w-full px-4 sm:px-6 pb-16">
           <JournalResultsPanel
             articles={result?.articles ?? null}
+            journalMatches={journalMatches}
             loading={loading}
             totalFound={result?.totalFound ?? 0}
             fetched={result?.fetched ?? 0}

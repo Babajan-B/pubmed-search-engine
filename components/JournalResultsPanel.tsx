@@ -31,6 +31,7 @@ interface JournalInfo {
   quartile: string | null;
   category: string | null;
   articleCount: number;
+  matchType?: 'article' | 'journal-name';
 }
 
 interface TopicGroup {
@@ -201,6 +202,7 @@ function TopicSection({ group }: { group: TopicGroup }) {
 
 interface Props {
   articles: Article[] | null;
+  journalMatches: JournalInfo[];
   loading: boolean;
   totalFound: number;
   fetched: number;
@@ -211,6 +213,7 @@ interface Props {
 
 export default function JournalResultsPanel({
   articles,
+  journalMatches,
   loading,
   totalFound,
   fetched,
@@ -219,9 +222,30 @@ export default function JournalResultsPanel({
   searchQuery,
 }: Props) {
   const { allJournals, topicGroups } = useMemo(() => {
-    if (!articles || articles.length === 0) return { allJournals: [], topicGroups: [] };
+    const articleJournals = articles && articles.length > 0 ? buildJournalList(articles) : [];
+    const directMatches = journalMatches.map((journal) => ({
+      ...journal,
+      articleCount: journal.articleCount || 0,
+      matchType: 'journal-name' as const,
+    }));
 
-    const allJournals = buildJournalList(articles);
+    const merged = new Map<string, JournalInfo>();
+    for (const journal of directMatches) {
+      merged.set(journal.name.toLowerCase(), journal);
+    }
+    for (const journal of articleJournals) {
+      const key = journal.name.toLowerCase();
+      const existing = merged.get(key);
+      merged.set(key, {
+        ...journal,
+        articleCount: journal.articleCount + (existing?.articleCount ?? 0),
+        matchType: existing?.matchType,
+      });
+    }
+
+    const allJournals = Array.from(merged.values()).sort((a, b) => (b.jif ?? -1) - (a.jif ?? -1));
+    if (!articles || articles.length === 0) return { allJournals, topicGroups: [] };
+
     const keywords = extractKeywords(articles);
 
     const topicGroups: TopicGroup[] = keywords
@@ -236,7 +260,7 @@ export default function JournalResultsPanel({
       .filter((g) => g.journals.length > 0);
 
     return { allJournals, topicGroups };
-  }, [articles, searchQuery]);
+  }, [articles, journalMatches, searchQuery]);
 
   // ── Loading ──
   if (loading) {
@@ -261,7 +285,7 @@ export default function JournalResultsPanel({
   }
 
   // ── Empty state ──
-  if (articles === null) {
+  if (articles === null && journalMatches.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-32 text-muted-foreground text-sm space-y-2">
         <svg className="h-10 w-10 mb-2 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -273,7 +297,7 @@ export default function JournalResultsPanel({
     );
   }
 
-  if (articles.length === 0) {
+  if ((articles?.length ?? 0) === 0 && allJournals.length === 0) {
     return (
       <div className="rounded-xl border border-border bg-card p-8 text-center text-muted-foreground text-sm space-y-1">
         <p className="font-medium text-foreground">No journals found.</p>
@@ -289,6 +313,9 @@ export default function JournalResultsPanel({
       <div className="flex flex-wrap gap-4 text-xs text-muted-foreground pb-2 border-b border-border">
         <span>PubMed total: <strong className="text-foreground">{totalFound.toLocaleString()}</strong></span>
         <span>Articles fetched: <strong className="text-foreground">{fetched}</strong></span>
+        {journalMatches.length > 0 && (
+          <span>Journal-name matches: <strong className="text-foreground">{journalMatches.length}</strong></span>
+        )}
         <span>Journals found: <strong className="text-primary">{allJournals.length}</strong></span>
       </div>
 
